@@ -1,11 +1,14 @@
 import { relations } from "drizzle-orm"
-import { pgTable, text, timestamp, uuid, boolean, integer, serial } from "drizzle-orm/pg-core"
+import { pgTable, text, timestamp, uuid, boolean, integer, serial, date } from "drizzle-orm/pg-core"
 
 export const User = pgTable("user", {
     id: uuid("id").primaryKey().defaultRandom(),
     fullName: text("full_name").notNull(),
     email: text("email").notNull().unique(),
     hashedPassword: text("hashed_password"),
+    userType: text("user_type", ).notNull(), // 'normal' ou 'cooperative'
+    totalPoints: integer("total_points").default(0),
+    canRedeemRewards: boolean("can_redeem_rewards").default(true),
 })
 export type User = typeof User.$inferSelect
 
@@ -45,30 +48,22 @@ export const Session = pgTable("session", {
     }).notNull(),
 })
 
-export const Notifications= pgTable("notifications", {
-    notification_id: serial('notification_id').primaryKey(),
 
-    userId: uuid("user_id")
-        .notNull()
-        .references(() => User.id),
-    sentAt: timestamp("sent_at", {
-        withTimezone: true,
-        mode: "date",
-    }).defaultNow().notNull(),
-    messageId: integer('message_id')
-    .references(()=> MessageTemplate.messageId),
+export const userTypes = ['normal', 'cooperative'] as const;
 
-    isRead: boolean("is_read").default(false),
-})
-export const NotifcationsRelations = relations(Notifications, ({ one }) => ({
-    user: one(MessageTemplate, { references: [MessageTemplate.messageId], fields: [Notifications.messageId] }),
-}))
 
-export const MessageTemplate = pgTable("message_template", {
-    messageId: serial("id").primaryKey(), 
-    message: text("message").notNull(), 
-    type: text("type").notNull(),
-});
+  
+  // Definir a tabela de transações de reciclagem
+export const recyclingTransactions = pgTable("recycling_transactions", {
+    id: serial("id").primaryKey(),
+    userId:  uuid("id").primaryKey()
+      .references(() => User.id)
+      .notNull(),
+    weight: integer("weight").notNull(), // Peso dos resíduos reciclados
+    points: integer("points").notNull(), // Pontos ganhos
+    transactionDate: date("transaction_date").defaultNow(), // Data da transação
+  });
+
 
 export type Session = typeof Session.$inferSelect
 

@@ -96,6 +96,7 @@ export const authRouter = {
                         email: input.email,
                         fullName: input.fullName,
                         hashedPassword: await hash(input.password, ARGON2_OPTS),
+                        userType: 'normal',
                     })
                     .returning()
 
