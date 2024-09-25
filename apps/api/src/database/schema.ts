@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm"
-import { pgTable, text, timestamp, uuid } from "drizzle-orm/pg-core"
+import { pgTable, text, timestamp, uuid, boolean, integer, serial } from "drizzle-orm/pg-core"
 
 export const User = pgTable("user", {
     id: uuid("id").primaryKey().defaultRandom(),
@@ -44,6 +44,32 @@ export const Session = pgTable("session", {
         mode: "date",
     }).notNull(),
 })
+
+export const Notifications= pgTable("notifications", {
+    notification_id: serial('notification_id').primaryKey(),
+
+    userId: uuid("user_id")
+        .notNull()
+        .references(() => User.id),
+    sentAt: timestamp("sent_at", {
+        withTimezone: true,
+        mode: "date",
+    }).defaultNow().notNull(),
+    messageId: integer('message_id')
+    .references(()=> MessageTemplate.messageId),
+
+    isRead: boolean("is_read").default(false),
+})
+export const NotifcationsRelations = relations(Notifications, ({ one }) => ({
+    user: one(MessageTemplate, { references: [MessageTemplate.messageId], fields: [Notifications.messageId] }),
+}))
+
+export const MessageTemplate = pgTable("message_template", {
+    messageId: serial("id").primaryKey(), 
+    message: text("message").notNull(), 
+    type: text("type").notNull(),
+});
+
 export type Session = typeof Session.$inferSelect
 
 export const SessionRelations = relations(Session, ({ one }) => ({
