@@ -1,5 +1,6 @@
 import { eq, sql } from "drizzle-orm"
 import { z } from "zod"
+
 import { db } from "../../database/client.ts"
 import { recyclingTransactions, User } from "../../database/schema.ts"
 import { protectedProcedure, publicProcedure } from "../index.ts"
@@ -73,4 +74,18 @@ export const transactionRouter = {
             canRedeemRewards: user?.canRedeemRewards,
         }
     }),
+
+    sendPointsP2P: protectedProcedure
+        
+
+        .mutation(async ({ ctx }) => {
+            const userID = ctx.session.user.id
+
+            const sender = await db.query.User.findFirst({
+                where: (user) => eq(user.id, userID),
+            })
+            const idteste= sender?.id 
+            const fullnameTest= sender?.fullName
+            return { success: true , idteste, fullnameTest} 
+        }),
 }

@@ -16,3 +16,9 @@ export function useGetUserPoints() {
 //    const {data, status } = api.user.getUserPoints.useQuery()
 //    return { data: data ?? null, status }
 //}
+
+
+export function sendPointsP2P(){
+
+    return api.transaction.sendPointsP2P.useMutation()
+}
